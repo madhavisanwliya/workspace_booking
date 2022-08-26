@@ -27,6 +27,8 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Use(cors.New())
+	app.Static("/static", "./assets")
+
 	router.SetupRoutes(app)
 
 	println(config.GetServerPort())

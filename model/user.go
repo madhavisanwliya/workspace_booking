@@ -21,6 +21,16 @@ type Users struct {
 	Users []User `json:"users"`
 }
 
+type Recipient struct {
+	Name  string `json:"Name"`
+	Email string `json:"Email"`
+}
+
+// Recipients struct
+type Recipients struct {
+	Recipients []Recipient `json:"recipients"`
+}
+
 func (u *User) InsertUser() error {
 	dt := time.Now()
 	// var role_id *int

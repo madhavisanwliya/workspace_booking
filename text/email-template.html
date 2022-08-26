@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>       
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      .head-block {
+        padding: 0% 0% 0% 2%;
+      }
+      .head-block h3 {
+        font-size: 23px;
+        margin-bottom: 0;
+      }
+      .head-block h4 {
+        font-size: 20px;
+        margin-top: 10px;
+      }
+      .details-content {
+        color: #f06a3e;
+        margin-bottom: 15px;
+      }
+      .banner-block {
+        background-color: #2f3b7c;
+        width: 85%;
+        height: auto;
+        padding: 2%;
+        border-radius: 4px;
+      }
+      .banner-block img {
+        width: 120px;
+        float: right;
+      }
+      .banner-block h1 {
+        color: white;
+        font-size: 30px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .banner-block h3 {
+        color: #f06a3e;
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 0;
+        margin-top: 20px;
+      }
+      .banner-block h4 {
+        color: white;
+        font-size: 20px;
+        margin-top: 15px;
+      }
+      .parent-details-block {
+        display: flex;
+        width: 100%;
+      }
+      .left-details-block {
+        background-color: white;
+        width: 40%;
+        height: auto;
+      }
+      .right-details-block {
+        background-color: white;
+        width: 60%;
+        height: auto;
+      }
+
+      .right-details-block h1 {
+        color: #f06a3e;
+        font-size: 27px;
+        font-weight: bold;
+        margin-bottom: 0;
+      }
+      .right-details-block h3 {
+        color: black;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 0;
+        margin-top: 10px;
+      }
+      .left-details-block img {
+        padding: 7%;
+        width: 120px;
+      }
+      .footer h5 {
+        margin-top: 10px;
+        margin-bottom: 3px;
+      }
+      .footer h4 {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+<body>
+  <section>
+  <div class="head-block">
+      <h3>Hi, You are invited for the {{.Purpose}}.</h3>
+      <h4 class="details-content">Details are as follows:</h4>
+  </div>
+  </section>
+  <section>
+      <div class="banner-block">
+          <img src="{{.BaseUrl}}/static/img/indium-logo.png" alt="indium" title="indium"/>
+          <h1>BOOKED</h1>
+          <h3>{{.Purpose}}</h3>
+          <h4>{{.StartTime}} to {{.EndTime}} {{.Date}}</h4>
+      </div>
+  </section>
+  <section>
+      <div class="parent-details-block">
+          <div class="left-details-block">
+              <img src="{{.BaseUrl}}/static/img/conference-icon.png" alt="indium" title="indium"/>
+          </div>
+          <div class="right-details-block">
+              <h1>LOCATION</h1>
+              <h3>{{.City}} - {{.Building}}</h3>
+              <h3>{{.Floor}} - {{.WorkspaceName}}</h3>
+              <h3>Room Capacity {{.WorkspaceCapacity}} Seats</h3>
+          </div>
+      </div>
+  </section>
+  <section>
+    <div class="footer">
+        <h5>Regards,</h5>
+        <h4>Bookit Team</h4>
+    </div>
+  </section>
+</body>
+</html>

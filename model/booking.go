@@ -157,3 +157,16 @@ func GetAvailableBookingSpace(floorId int, fromDate, toDate string) (availableWo
 	availableWorkspaces := AvailableWorkspaces{FloorDetails: floor, BookedWorkSpaces: bookedWorkSpacesRecord}
 	return availableWorkspaces, nil
 }
+
+func FetchBooking(id int16) (*BookingDetail, error) {
+	row := migration.DbPool.QueryRow(context.Background(), "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where booking_id = $1)", id)
+	booking := new(BookingDetail)
+	e := row.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.CreatedAt, &booking.UpdatedAt)
+	if e != nil {
+		fmt.Println("Failed to get bookings_details record :", e)
+		return nil, e
+	}
+	booking.BookingParticipant = GetBookingParticipantsDetailsByBookingId(booking.Id)
+	booking.BookingWorkspace = GetBookingWorkspacesDetailsByBookingId(booking.Id)
+	return booking, nil
+}

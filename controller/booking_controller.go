@@ -3,6 +3,7 @@ package controller
 import (
 	"strconv"
 	"workspace_booking/config"
+	"workspace_booking/mailer"
 	"workspace_booking/model"
 	"workspace_booking/utility"
 
@@ -38,6 +39,10 @@ func CreateBooking(c *fiber.Ctx) error {
 
 	if err != nil {
 		return utility.ErrResponse(c, "Error in creating participants", 500, err)
+	}
+
+	if workspaceParams.Id != 0 {
+		mailer.BookingMailer(workspaceParams, timingParams)
 	}
 
 	if err := c.JSON(&fiber.Map{
