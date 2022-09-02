@@ -170,3 +170,26 @@ func FetchBooking(id int16) (*BookingDetail, error) {
 	booking.BookingWorkspace = GetBookingWorkspacesDetailsByBookingId(booking.Id)
 	return booking, nil
 }
+
+func GetBookingForReminder() []int16 {
+	fromDate := time.Now()
+	toDate := fromDate.Add(time.Minute * 15)
+	BookingIds := []int16{}
+	fmt.Println(fromDate)
+	fmt.Println(toDate)
+	rows, err := migration.DbPool.Query(context.Background(), "SELECT bookings.id from bookings join booking_workspaces on bookings.id = booking_workspaces.booking_id where booking_workspaces.from_datetime between $1 and $2", fromDate, toDate)
+
+	defer rows.Close()
+
+	if err != nil {
+		fmt.Println("Failed to get bookings:", err)
+	}
+
+	for rows.Next() {
+		var id int16
+		rows.Scan(&id)
+		BookingIds = append(BookingIds, id)
+	}
+	fmt.Println(BookingIds)
+	return BookingIds
+}

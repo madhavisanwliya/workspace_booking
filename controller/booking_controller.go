@@ -42,7 +42,7 @@ func CreateBooking(c *fiber.Ctx) error {
 	}
 
 	if workspaceParams.Id != 0 {
-		mailer.BookingMailer(workspaceParams, timingParams)
+		go mailer.BookingMailer(workspaceParams.Id)
 	}
 
 	if err := c.JSON(&fiber.Map{

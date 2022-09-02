@@ -1,15 +1,14 @@
 package mailer
 
 import (
-	"fmt"
 	"os"
 	"workspace_booking/model"
 )
 
-func BookingMailer(booking *model.Booking, timing *model.BookingTiming) {
+func BookingMailer(bookingId int16) {
 
 	templatePath := "/text/email-template.html"
-	particitpants := model.GetBookingParticipantsDetailsByBookingId(booking.Id)
+	particitpants := model.GetBookingParticipantsDetailsByBookingId(bookingId)
 
 	recipients := make([]*model.Recipient, 0)
 
@@ -20,30 +19,35 @@ func BookingMailer(booking *model.Booking, timing *model.BookingTiming) {
 		recipients = append(recipients, recipient)
 	}
 
-	subject := booking.Purpose
-
-	message := "This would informed you that meeting take place on " + timing.FromDate
-
 	const (
-		layoutISO = "2006-01-02"
-		layoutUS  = "Monday, Jan 2 2006"
+		layoutISO  = "2006-01-02"
+		layoutUS   = "Monday, Jan 2 2006"
+		timeLayout = "15:04 PM"
 	)
 
-	bookingData, _ := model.FetchBooking(booking.Id)
+	bookingData, _ := model.FetchBooking(bookingId)
+
+	subject := bookingData.Purpose
 
 	date := bookingData.FromDateTime
 
 	formatDate := date.Format(layoutUS)
 
-	fmt.Println(formatDate)
+	message := "This would informed you that meeting take place " + formatDate
+
+	StartTime := date.Format(timeLayout)
+
+	toDate := bookingData.ToDateTime
+
+	EndTime := toDate.Format(timeLayout)
 
 	baseUrl := os.Getenv("BASE_URL")
 
 	templateData := map[string]interface{}{
 		"Message":           message,
-		"Purpose":           booking.Purpose,
-		"StartTime":         timing.StartTime,
-		"EndTime":           timing.EndTime,
+		"Purpose":           bookingData.Purpose,
+		"StartTime":         StartTime,
+		"EndTime":           EndTime,
 		"Date":              formatDate,
 		"City":              bookingData.CityName,
 		"Building":          bookingData.BuildingName,
