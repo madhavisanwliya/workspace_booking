@@ -8,17 +8,11 @@
       }
       .head-block h3 {
         font-size: 23px;
-        margin-bottom: 0;
-      }
-      .head-block h4 {
-        font-size: 20px;
-        margin-top: 10px;
-      }
-      .details-content {
-        color: #f06a3e;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
+        font-family: 'Times New Roman';
       }
       .banner-block {
+        font-family: 'Times New Roman';
         background-color: #2f3b7c;
         width: 85%;
         height: auto;
@@ -29,61 +23,29 @@
         width: 120px;
         float: right;
       }
-      .banner-block h1 {
-        color: white;
-        font-size: 30px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
       .banner-block h3 {
-        color: #f06a3e;
-        font-size: 30px;
-        font-weight: bold;
-        margin-bottom: 0;
-        margin-top: 20px;
-      }
-      .banner-block h4 {
         color: white;
-        font-size: 20px;
+        font-size: 15px;
+        margin-bottom: 0;
         margin-top: 15px;
       }
-      .parent-details-block {
-        display: flex;
-        width: 100%;
-      }
-      .left-details-block {
-        background-color: white;
-        width: 40%;
-        height: auto;
-      }
-      .right-details-block {
-        background-color: white;
-        width: 60%;
-        height: auto;
-      }
-
-      .right-details-block h1 {
-        color: #f06a3e;
-        font-size: 27px;
-        font-weight: bold;
+      .banner-block h3 span{
+        color: white;
+        font-size: 20px;
         margin-bottom: 0;
+        margin-top: 15px;
       }
-      .right-details-block h3 {
-        color: black;
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 0;
-        margin-top: 10px;
-      }
-      .left-details-block img {
-        padding: 7%;
-        width: 120px;
+      .footer {
+        padding: 0% 0% 0% 2%;
+        font-family: 'Times New Roman';
       }
       .footer h5 {
+        font-size: 12px;
         margin-top: 10px;
         margin-bottom: 3px;
       }
       .footer h4 {
+        font-size: 15px;
         margin-top: 0;
       }
     </style>
@@ -91,29 +53,17 @@
 <body>
   <section>
   <div class="head-block">
-      <h3>Hi, You are invited for the {{.Purpose}}.</h3>
-      <h4 class="details-content">Details are as follows:</h4>
+      <h3>Hi, You are invited for the following {{.Purpose}}.</h3>
   </div>
   </section>
   <section>
       <div class="banner-block">
           <img src="{{.BaseUrl}}/static/img/indium-logo.png" alt="indium" title="indium"/>
-          <h1>BOOKED</h1>
-          <h3>{{.Purpose}}</h3>
-          <h4>{{.StartTime}} to {{.EndTime}} {{.Date}}</h4>
-      </div>
-  </section>
-  <section>
-      <div class="parent-details-block">
-          <div class="left-details-block">
-              <img src="{{.BaseUrl}}/static/img/conference-icon.png" alt="indium" title="indium"/>
-          </div>
-          <div class="right-details-block">
-              <h1>LOCATION</h1>
-              <h3>{{.City}} - {{.Building}}</h3>
-              <h3>{{.Floor}} - {{.WorkspaceName}}</h3>
-              <h3>Room Capacity {{.WorkspaceCapacity}} Seats</h3>
-          </div>
+          <h3><span>Date:</span> {{.Date}}</h3>
+          <h3><span>Time:</span> {{.StartTime}} to {{.EndTime}} </h3>
+          <h3><span>Location:</span> {{.City}} - {{.Building}}, {{.Floor}}, {{.WorkspaceName}}</h3>
+          <h3><span>Room Capacity:</span> {{.WorkspaceCapacity}} Seats</h3>
+          <h3><span>Invited by:</span> {{.UserName}}</h3>
       </div>
   </section>
   <section>

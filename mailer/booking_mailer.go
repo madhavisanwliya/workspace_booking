@@ -27,7 +27,7 @@ func BookingMailer(bookingId int16) {
 
 	bookingData, _ := model.FetchBooking(bookingId)
 
-	subject := bookingData.Purpose
+	subject := "Invitation for " + bookingData.Purpose
 
 	date := bookingData.FromDateTime
 
@@ -55,6 +55,7 @@ func BookingMailer(bookingId int16) {
 		"WorkspaceName":     bookingData.BookingWorkspace[len(bookingData.BookingWorkspace)-1].WorkspaceName,
 		"WorkspaceCapacity": bookingData.BookingWorkspace[len(bookingData.BookingWorkspace)-1].WorkspaceCapacity,
 		"BaseUrl":           baseUrl,
+		"UserName":          bookingData.UserName,
 	}
 
 	Mailer(recipients, subject, templatePath, message, templateData)
