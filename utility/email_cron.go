@@ -16,7 +16,7 @@ func BookingMailCron() {
 		bookingIds := model.GetBookingForReminder()
 		fmt.Println(bookingIds)
 		for _, id := range bookingIds {
-			mailer.BookingMailer(id)
+			mailer.BookingMailer(id, true)
 		}
 
 	})

@@ -5,7 +5,7 @@ import (
 	"workspace_booking/model"
 )
 
-func BookingMailer(bookingId int16) {
+func BookingMailer(bookingId int16, reminder bool) {
 
 	templatePath := "/text/email-template.html"
 	particitpants := model.GetBookingParticipantsDetailsByBookingId(bookingId)
@@ -28,6 +28,10 @@ func BookingMailer(bookingId int16) {
 	bookingData, _ := model.FetchBooking(bookingId)
 
 	subject := "Invitation for " + bookingData.Purpose
+
+	if reminder == true {
+		subject = "Reminder: " + subject
+	}
 
 	date := bookingData.FromDateTime
 
