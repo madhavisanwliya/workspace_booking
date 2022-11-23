@@ -132,3 +132,22 @@ func MyBookingDetails(c *fiber.Ctx) error {
 	}
 	return nil
 }
+
+func CanceledBookings(c *fiber.Ctx) error {
+	id := c.Params("id")
+	i, e := strconv.ParseInt(id, 0, 16)
+	if e != nil {
+		return c.Status(400).SendString(e.Error())
+	}
+	v := model.Booking{Id: int16(i)}
+	err := model.CancelBooking(v)
+	if err == nil {
+		go mailer.CancelMailer(v.Id)
+	}
+	if err != nil {
+		return utility.ErrResponse(c, "Error in  canceling", 400, err)
+	}
+	return c.JSON(fiber.Map{
+		"message": "Meeting has been canceled",
+	})
+}

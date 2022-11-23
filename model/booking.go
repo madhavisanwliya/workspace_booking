@@ -20,6 +20,9 @@ type Booking struct {
 	UpdatedAt          time.Time            `json:"updated_at"`
 	FromDateTime       string               `json:"from_datetime"`
 	ToDateTime         string               `json:"to_datetime"`
+	Comments           string               `json:"comments"`
+	CommonEmails       string               `json:"common_emails"`
+	Active             bool                 `json:"active"`
 	SelectedWorkspaces []*SelectedWorkspace `json:"selected_workspaces"`
 }
 
@@ -48,6 +51,9 @@ type BookingDetail struct {
 	FromDateTime       time.Time `json:"from_datetime"`
 	ToDateTime         time.Time `json:"to_datetime"`
 	Purpose            string    `json:"purpose"`
+	Comments           string    `json:"comments"`
+	CommonEmails       string    `json:"common_emails"`
+	Active             bool      `json:"active"`
 	BookingParticipant []*BookingParticipantDetail
 	BookingWorkspace   []*BookingWorkspaceDetail
 	CreatedAt          time.Time `json:"created_at"`
@@ -79,11 +85,11 @@ func (b *Booking) InsertBooking() error {
 
 	dt := time.Now()
 	query := "INSERT INTO bookings (city_id, building_id, floor_id, from_datetime, to_datetime, purpose, " +
-		"user_id, created_at, updated_at)" +
-		" VALUES ($1, $2, $3, $4,$5, $6, $7, $8, $9) RETURNING id, created_at, updated_at"
+		"user_id, comments, common_emails, active, created_at, updated_at)" +
+		" VALUES ($1, $2, $3, $4,$5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, created_at, updated_at"
 	d := migration.DbPool.QueryRow(
 		context.Background(), query, b.CityId, b.BuildingId, b.FloorId, b.FromDateTime, b.ToDateTime,
-		b.Purpose, b.UserId, dt, dt,
+		b.Purpose, b.UserId, b.Comments, b.CommonEmails, b.Active, dt, dt,
 	)
 	err := d.Scan(&b.Id, &b.CreatedAt, &b.UpdatedAt)
 	if err != nil {
@@ -140,7 +146,7 @@ func GetAvailableBookingSpace(floorId int, fromDate, toDate string) (availableWo
 
 	bookedWorkSpacesRecord := make([]*BookedWorkSpace, 0)
 
-	rows, err := migration.DbPool.Query(context.Background(), "SELECT from_datetime as date, array_agg(workspace_id) as seats from booking_workspaces where floor_id = $1 and from_datetime between $2 and $3 and to_datetime between $4 and $5 group by from_datetime", floorId, fromDate, toDate, fromDate, toDate)
+	rows, err := migration.DbPool.Query(context.Background(), "SELECT from_datetime as date, array_agg(workspace_id) as seats from booking_workspaces where (floor_id = $1 and from_datetime between $2 and $3 and to_datetime between $2 and $3) or (floor_id = $1 and from_datetime <= $2 and to_datetime <= $3) group by from_datetime", floorId, fromDate, toDate)
 
 	defer rows.Close()
 
@@ -159,9 +165,9 @@ func GetAvailableBookingSpace(floorId int, fromDate, toDate string) (availableWo
 }
 
 func FetchBooking(id int16) (*BookingDetail, error) {
-	row := migration.DbPool.QueryRow(context.Background(), "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where booking_id = $1)", id)
+	row := migration.DbPool.QueryRow(context.Background(), "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, comments, common_emails, active, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where booking_id = $1)", id)
 	booking := new(BookingDetail)
-	e := row.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.CreatedAt, &booking.UpdatedAt)
+	e := row.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.Comments, &booking.CommonEmails, &booking.Active, &booking.CreatedAt, &booking.UpdatedAt)
 	if e != nil {
 		fmt.Println("Failed to get bookings_details record :", e)
 		return nil, e
@@ -192,4 +198,11 @@ func GetBookingForReminder() []int16 {
 	}
 	fmt.Println(BookingIds)
 	return BookingIds
+}
+
+func CancelBooking(b Booking) error {
+	dt := time.Now()
+	_, err := migration.DbPool.Exec(context.Background(), "UPDATE bookings SET active=$1, updated_at=$2 WHERE id=$3", false, dt, b.Id)
+	return err
+
 }

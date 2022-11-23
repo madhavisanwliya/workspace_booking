@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>      
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+
+      .head-block {
+
+        padding: 0% 0% 0% 2%;
+
+      }
+
+      .head-block h3 {
+
+        font-size: 23px;
+
+        margin-bottom: 10px;
+
+        font-family: 'Times New Roman';
+
+      }
+
+      .banner-block {
+
+        font-family: 'Times New Roman';
+
+        background-color: #ffffff;
+
+        width: 85%;
+
+        height: auto;
+
+        padding: 2%;
+
+        border-radius: 4px;
+
+      }
+
+      .banner-block img {
+
+        width: 120px;
+
+        float: right;
+
+      }
+
+      .banner-block h3 {
+
+        color: rgb(3, 0, 0);
+
+        font-size: 15px;
+
+        margin-bottom: 0;
+
+        margin-top: 15px;
+
+      }
+
+      .banner-block h3 span{
+
+        color: rgb(3, 0, 0);
+
+        font-size: 20px;
+
+        margin-bottom: 0;
+
+        margin-top: 15px;
+
+      }
+
+      .footer {
+
+        padding: 0% 0% 0% 2%;
+
+        font-family: 'Times New Roman';
+
+      }
+
+      .footer h5 {
+
+        font-size: 12px;
+
+        margin-top: 10px;
+
+        margin-bottom: 3px;
+
+      }
+
+      .footer h4 {
+
+        font-size: 15px;
+
+        margin-top: 0;
+
+      }
+
+    </style>
+
+  </head>
+
+<body>
+
+  <section>
+
+  <div class="head-block">
+
+        <h3>Hi, This is to inform that</h3>
+
+      <h3>The meeting has been canceled which was held on {{.Purpose}}.</h3>
+
+  </div>
+
+  </section>
+
+  <section>
+
+      <div class="banner-block">
+
+          <img src="{{.BaseUrl}}/static/img/indium-logo.png" alt="indium" title="indium"/>
+
+          <h3><span>Date:</span> {{.Date}}</h3>
+
+          <h3><span>Time:</span> {{.StartTime}} to {{.EndTime}} </h3>
+
+          <h3><span>Location:</span> {{.City}} - {{.Building}}, {{.Floor}}, {{.WorkspaceName}}</h3>
+
+          <h3><span>Invited by:</span> {{.UserName}}</h3>
+
+      </div>
+
+  </section>
+
+  <section>
+
+    <div class="footer">
+
+        <h5>Regards,</h5>
+
+        <h4>Bookit Team</h4>
+
+    </div>
+
+  </section>
+
+</body>
+
+</html>

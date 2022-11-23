@@ -196,4 +196,12 @@ func SetupRoutes(app *fiber.App) {
 		}
 		return c.SendStatus(fiber.StatusForbidden)
 	})
+
+	api.Put("/cancel_booking/:id", func(c *fiber.Ctx) error {
+		user := c.Locals("verify")
+		if user == "true" {
+			return controller.CanceledBookings(c)
+		}
+		return c.SendStatus(fiber.StatusForbidden)
+	})
 }

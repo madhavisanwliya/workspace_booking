@@ -2,30 +2,38 @@ package mailer
 
 import (
 	"os"
+	"strings"
+	"workspace_booking/config"
 	"workspace_booking/model"
 )
 
 func BookingMailer(bookingId int16, reminder bool) {
 
-	templatePath := "/text/email-template.html"
+	templatePath := config.GeBookingTemplatePath()
 	particitpants := model.GetBookingParticipantsDetailsByBookingId(bookingId)
 
 	recipients := make([]*model.Recipient, 0)
-
+	bookingData, err := model.FetchBooking(bookingId)
+	if err != nil {
+		panic(err)
+	}
 	for _, participant := range particitpants {
 		recipient := new(model.Recipient)
 		recipient.Name = participant.UserName
 		recipient.Email = participant.UserEmail
 		recipients = append(recipients, recipient)
 	}
-
-	const (
-		layoutISO  = "2006-01-02"
-		layoutUS   = "Monday, Jan 2 2006"
-		timeLayout = "15:04 PM"
-	)
-
-	bookingData, _ := model.FetchBooking(bookingId)
+	if bookingData.CommonEmails != "" {
+		commonEmails := strings.SplitAfter(bookingData.CommonEmails, ",")
+		for _, commonEmail := range commonEmails {
+			commonRecipient := new(model.Recipient)
+			commonRecipient.Name = strings.ReplaceAll(commonEmail, " ", "")
+			commonRecipient.Email = strings.ReplaceAll(commonEmail, " ", "")
+			recipients = append(recipients, commonRecipient)
+		}
+	}
+	layoutUS := config.GetLayoutUS()
+	timeLayout := config.GetTimeLayout()
 
 	subject := "Invitation for " + bookingData.Purpose
 
