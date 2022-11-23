@@ -63,6 +63,28 @@ func BulkInsertBookingWorkspace(booking *Booking, timing *BookingTiming) error {
 	return nil
 }
 
+func BulkDeleteBookingWorkspace(bookingId int16) error {
+	workspaces, e := migration.DbPool.Query(context.Background(), "SELECT * from booking_workspaces where booking_id = $1", bookingId)
+
+	defer workspaces.Close()
+
+	for workspaces.Next() {
+		workspace := new(BookingWorkspaceDetail)
+		e = workspaces.Scan(&workspace.Id, &workspace.WorkspaceName, &workspace.WorkspaceType, &workspace.WorkspaceCapacity)
+		DeleteBookingWorkspace(workspace.Id)
+	}
+	if e != nil {
+		return e
+	}
+	return nil
+}
+
+func DeleteBookingWorkspace(Id int16) error {
+	ok, err := migration.DbPool.Exec(context.Background(), "DELETE FROM booking_workspaces WHERE id=$1", Id)
+	fmt.Println(ok)
+	return err
+}
+
 func GetBookingWorkspacesDetailsByBookingId(bookingId int16) []*BookingWorkspaceDetail {
 	workspaces, e := migration.DbPool.Query(context.Background(), "SELECT workspace_id, (select name from workspaces where id = booking_workspaces.workspace_id) as workspace_name, (select type from workspaces where id = booking_workspaces.workspace_id) as workspace_type, (select capacity from workspaces where id = booking_workspaces.workspace_id) as workspace_capacity from booking_workspaces where booking_id = $1", bookingId)
 

@@ -96,6 +96,14 @@ func SetupRoutes(app *fiber.App) {
 		return c.SendStatus(fiber.StatusForbidden)
 	})
 
+	api.Put("/book_workspace/:id", func(c *fiber.Ctx) error {
+		user := c.Locals("verify")
+		if user == "true" {
+			return controller.UpdateBooking(c)
+		}
+		return c.SendStatus(fiber.StatusForbidden)
+	})
+
 	api.Get("/workspace_details", func(c *fiber.Ctx) error {
 		user := c.Locals("verify")
 		if user == "true" {
