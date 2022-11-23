@@ -99,6 +99,20 @@ func (b *Booking) InsertBooking() error {
 	return nil
 }
 
+func (b *Booking) UpdateBooking(id int16) error {
+	dt := time.Now()
+	query := "UPDATE bookings SET city_id=$1, building_id=$2, floor_id=$3, from_datetime=$4, to_datetime=$5, purpose=$6, user_id=$7, updated_at=$8, comments=$10, common_emails=$11 WHERE id=$9"
+	d := migration.DbPool.QueryRow(
+		context.Background(), query, b.CityId, b.BuildingId, b.FloorId, b.FromDateTime, b.ToDateTime,
+		b.Purpose, b.UserId, dt, id, b.Comments, b.CommonEmails,
+	)
+	err := d.Scan(&b.Id, &b.CreatedAt, &b.UpdatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetMyBookingDetails(isForPast bool, userId int) []*BookingDetail {
 	currTime := time.Now()
 	currentDate := config.SqlTimeFormat(currTime)

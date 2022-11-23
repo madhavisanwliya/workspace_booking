@@ -55,6 +55,28 @@ func BulkInsertBookingParticipant(booking *Booking) error {
 	return nil
 }
 
+func BulkDeleteBookingParticipant(bookingId int16) error {
+	participants, e := migration.DbPool.Query(context.Background(), "SELECT * from booking_participants where booking_id = $1", bookingId)
+
+	defer participants.Close()
+
+	for participants.Next() {
+		participant := new(BookingParticipantDetail)
+		e = participants.Scan(&participant.Id, &participant.UserName, &participant.UserEmail)
+		DeleteBookingParticipant(participant.Id)
+	}
+	if e != nil {
+		return e
+	}
+	return nil
+}
+
+func DeleteBookingParticipant(Id int16) error {
+	ok, err := migration.DbPool.Exec(context.Background(), "DELETE FROM booking_participants WHERE id=$1", Id)
+	fmt.Println(ok)
+	return err
+}
+
 func GetBookingParticipantsDetailsByBookingId(bookingId int16) []*BookingParticipantDetail {
 	// query all booking_participants data
 	participants, e := migration.DbPool.Query(context.Background(), "SELECT user_id, (select name from users where id = booking_participants.user_id) as user_name, (select email from users where id = booking_participants.user_id) as user_email from booking_participants where booking_id = $1", bookingId)

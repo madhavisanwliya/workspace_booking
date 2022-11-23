@@ -54,6 +54,69 @@ func CreateBooking(c *fiber.Ctx) error {
 	return nil
 }
 
+func UpdateBooking(c *fiber.Ctx) error {
+	timingParams := new(model.BookingTiming)
+
+	c.BodyParser(timingParams)
+
+	id := c.Params("id")
+
+	i, e := strconv.Atoi(id)
+
+	if e != nil {
+		return c.Status(400).SendString(e.Error())
+	}
+
+	bookingData, err := model.FetchBooking(int16(i))
+
+	if err != nil {
+		return utility.ErrResponse(c, "Error in fetching", 500, err)
+	}
+
+	fromDatetTime, toDateTime := model.BookingTimestamp(timingParams)
+
+	workspaceParams := new(model.Booking)
+
+	if err := c.BodyParser(workspaceParams); err != nil {
+		return utility.ErrResponse(c, "Error in body parsing", 400, err)
+	}
+
+	workspaceParams.Id = bookingData.Id
+
+	workspaceParams.FromDateTime = fromDatetTime
+	workspaceParams.ToDateTime = toDateTime
+
+	workspaceParams.UpdateBooking(int16(i))
+
+	// Bulk delete
+	model.BulkDeleteBookingWorkspace(workspaceParams.Id)
+	model.BulkDeleteBookingParticipant(workspaceParams.Id)
+
+	err = model.BulkInsertBookingParticipant(workspaceParams)
+
+	if err != nil {
+		return utility.ErrResponse(c, "Error in creating participants", 500, err)
+	}
+
+	err = model.BulkInsertBookingWorkspace(workspaceParams, timingParams)
+
+	if err != nil {
+		return utility.ErrResponse(c, "Error in creating workspaces", 500, err)
+	}
+
+	if workspaceParams.Id != 0 {
+		go mailer.BookingMailer(workspaceParams.Id, false)
+	}
+
+	if err := c.JSON(&fiber.Map{
+		"success": true,
+		"message": "Booking successfully updated",
+	}); err != nil {
+		return utility.ErrResponse(c, "Error in response", 500, err)
+	}
+	return nil
+}
+
 func GetAvailableBookingSpace(c *fiber.Ctx) error {
 	reqFloorId := c.Query("floor_id")
 	fromDate := c.Query("from_date")
