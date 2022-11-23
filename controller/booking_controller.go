@@ -69,17 +69,18 @@ func UpdateBooking(c *fiber.Ctx) error {
 
 	bookingData, err := model.FetchBooking(int16(i))
 
+	if err != nil {
+		return utility.ErrResponse(c, "Error in fetching", 500, err)
+	}
+
 	fromDatetTime, toDateTime := model.BookingTimestamp(timingParams)
 
 	workspaceParams := new(model.Booking)
 
-	if err != nil {
-		return utility.ErrResponse(c, "Error in creation", 500, err)
-	}
-
 	if err := c.BodyParser(workspaceParams); err != nil {
 		return utility.ErrResponse(c, "Error in body parsing", 400, err)
 	}
+
 	workspaceParams.Id = bookingData.Id
 
 	workspaceParams.FromDateTime = fromDatetTime
@@ -96,7 +97,7 @@ func UpdateBooking(c *fiber.Ctx) error {
 	err = model.BulkInsertBookingWorkspace(workspaceParams, timingParams)
 
 	if err != nil {
-		return utility.ErrResponse(c, "Error in creating participants", 500, err)
+		return utility.ErrResponse(c, "Error in creating participants and workspaces", 500, err)
 	}
 
 	if workspaceParams.Id != 0 {
