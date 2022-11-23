@@ -94,10 +94,14 @@ func UpdateBooking(c *fiber.Ctx) error {
 
 	err = model.BulkInsertBookingParticipant(workspaceParams)
 
+	if err != nil {
+		return utility.ErrResponse(c, "Error in creating participants", 500, err)
+	}
+
 	err = model.BulkInsertBookingWorkspace(workspaceParams, timingParams)
 
 	if err != nil {
-		return utility.ErrResponse(c, "Error in creating participants and workspaces", 500, err)
+		return utility.ErrResponse(c, "Error in creating workspaces", 500, err)
 	}
 
 	if workspaceParams.Id != 0 {
