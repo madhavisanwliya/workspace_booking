@@ -116,7 +116,7 @@ func (b *Booking) UpdateBooking(id int16) error {
 func GetMyBookingDetails(isForPast bool, userId int) []*BookingDetail {
 	currTime := time.Now()
 	currentDate := config.SqlTimeFormat(currTime)
-	query := "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where user_id = $1)"
+	query := "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, comments, common_emails, active, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where user_id = $1)"
 	var condition string
 	if isForPast {
 		condition = " AND from_datetime >= $2 ORDER BY from_datetime ASC"
@@ -137,7 +137,7 @@ func GetMyBookingDetails(isForPast bool, userId int) []*BookingDetail {
 	// iterate over bookings
 	for bookings.Next() {
 		booking := new(BookingDetail)
-		e = bookings.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.CreatedAt, &booking.UpdatedAt)
+		e = bookings.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.Comments, &booking.CommonEmails, &booking.Active, &booking.CreatedAt, &booking.UpdatedAt)
 		if e != nil {
 			fmt.Println("Failed to get bookings_details record :", e)
 			return []*BookingDetail{}
