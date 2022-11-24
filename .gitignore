@@ -22,3 +22,6 @@ go.work
 
 .env
 .idea
+node_modules/
+package-lock.json
+package.json

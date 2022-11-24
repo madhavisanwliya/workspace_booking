@@ -2,8 +2,9 @@ package migration
 
 import (
 	"context"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"workspace_booking/config"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var DbPool *pgxpool.Pool
@@ -21,9 +22,18 @@ func GetDbConnectionPool() *pgxpool.Pool {
 	checkError(err)
 	DbPool = db
 
-	// Dont change the order here
+	// Don't change the order here
 	CreateRoleTable()
+	CreateUserTable()
+	CreateCityTable()
+	// CreateLocationTable()
+	CreateBuildingTable()
+	CreateFloorTable()
+	CreateWorkspaceTable()
+	CreateAmenityTable()
 	CreateBookingsTable()
+	CreateBookingParticipantsTable()
+	CreateBookingWorkspaceTable()
 
 	return DbPool
 }

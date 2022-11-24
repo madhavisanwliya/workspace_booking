@@ -7,6 +7,7 @@ import (
 	"workspace_booking/model"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // AllRoles from db
@@ -14,10 +15,13 @@ func AllRoles(c *fiber.Ctx) error {
 	// query role table in the model
 
 	roles := model.GetAllRoles()
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
 
 	if err := c.JSON(&fiber.Map{
 		"success": true,
 		"role":    roles,
+		"user":    claims,
 		"message": "All role returned successfully",
 	}); err != nil {
 		return utility.ErrResponse(c, "Error in getting roles", 500, err)

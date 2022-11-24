@@ -1,8 +1,9 @@
 package utility
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"log"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func ErrResponse(c *fiber.Ctx, message string, status int, err error) error {

@@ -7,7 +7,7 @@ import (
 )
 
 // init is a special function in go will be called automatically on the startup
-// this will run before main and load env vrables into the scope
+// this will run before main and load env variables into the scope
 func init() {
 	err := godotenv.Load()
 	if err != nil {

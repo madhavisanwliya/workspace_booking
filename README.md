@@ -23,3 +23,6 @@ Mahesh => Roles & Moving DB code to Model layer
 
 will be picking this once the structure completes
 workspace_booking
+
+## Run server with 
+`npx nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run main.go`
