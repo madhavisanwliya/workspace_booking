@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 	"workspace_booking/config"
 	"workspace_booking/mailer"
@@ -139,6 +140,7 @@ func GetAvailableBookingSpace(c *fiber.Ctx) error {
 	timingParams.EndTime = endTime
 
 	fromDatetTime, toDateTime := model.BookingTimestamp(timingParams)
+	fmt.Println(fromDatetTime, toDateTime)
 	city := model.GetCityByFloorId(buildingId)
 	// getting booking worksapcesspace
 	availableWorkSpace, err := model.GetAvailableBookingSpace(floorId, fromDatetTime, toDateTime)
@@ -185,10 +187,12 @@ func MyBookingDetails(c *fiber.Ctx) error {
 
 	workspaceDetails := model.GetMyBookingDetails(true, userId)
 	pastBookingDetails := model.GetMyBookingDetails(false, userId)
+	canceledBookingDetails := model.CancelBookings(userId)
 	if err := c.JSON(&fiber.Map{
 		"success":                  true,
 		"upcoming_booking_details": workspaceDetails,
 		"past_booking_details":     pastBookingDetails,
+		"canceledBookingDetails":   canceledBookingDetails,
 		"message":                  "All My bookings returned successfully",
 	}); err != nil {
 		return utility.ErrResponse(c, "Error in getting My bookings", 500, err)

@@ -118,14 +118,60 @@ func GetMyBookingDetails(isForPast bool, userId int) []*BookingDetail {
 	currentDate := config.SqlTimeFormat(currTime)
 	query := "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, comments, common_emails, active, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where user_id = $1)"
 	var condition string
+	var active string
+
 	if isForPast {
-		condition = " AND from_datetime >= $2 ORDER BY from_datetime ASC"
+		condition = "AND from_datetime >= $2 ORDER BY from_datetime ASC"
 	} else {
-		condition = " AND from_datetime < $2 ORDER BY from_datetime DESC"
+		condition = "AND from_datetime < $2 ORDER BY from_datetime DESC"
 	}
-	finalQuery := query + condition
+
+	var finalQuery string
+
+	if !isForPast {
+		active = "AND active = true "
+	}
+
+	if isForPast {
+		finalQuery = query + condition
+	} else {
+		finalQuery = query + active + condition
+	}
+
 	// query all bookings data
 	bookings, e := migration.DbPool.Query(context.Background(), finalQuery, userId, currentDate)
+	if e != nil {
+		return nil
+	}
+	defer bookings.Close()
+
+	// declare BookingDetail array variable
+	bookingsDetails := make([]*BookingDetail, 0)
+
+	// iterate over bookings
+	for bookings.Next() {
+		booking := new(BookingDetail)
+		e = bookings.Scan(&booking.Id, &booking.CityId, &booking.BuildingId, &booking.FloorId, &booking.UserId, &booking.CityName, &booking.BuildingName, &booking.FloorName, &booking.UserName, &booking.FromDateTime, &booking.ToDateTime, &booking.Purpose, &booking.Comments, &booking.CommonEmails, &booking.Active, &booking.CreatedAt, &booking.UpdatedAt)
+		if e != nil {
+			fmt.Println("Failed to get bookings_details record :", e)
+			return []*BookingDetail{}
+		}
+		booking.BookingParticipant = GetBookingParticipantsDetailsByBookingId(booking.Id)
+		booking.BookingWorkspace = GetBookingWorkspacesDetailsByBookingId(booking.Id)
+		bookingsDetails = append(bookingsDetails, booking)
+	}
+	return bookingsDetails
+}
+
+func CancelBookings(userId int) []*BookingDetail {
+	currTime := time.Now()
+	currentDate := config.SqlTimeFormat(currTime)
+	query := "SELECT id, city_id, building_id, floor_id, user_id, (select name from cities where id = bookings.city_id) as city_name, (select name from buildings where id = bookings.building_id) as city_name, (select name from floors where id = bookings.floor_id) as floor_name, (select name from users where id = bookings.user_id) as user_name, from_datetime, to_datetime, purpose, comments, common_emails, active, created_at, updated_at FROM bookings WHERE id in (select booking_id from booking_participants where user_id = $1)"
+	condition := " AND active=false AND from_datetime >= $2  ORDER BY from_datetime DESC"
+	finalQuery := query + condition
+
+	bookings, e := migration.DbPool.Query(context.Background(), finalQuery, userId, currentDate)
+
 	if e != nil {
 		return nil
 	}
@@ -157,10 +203,10 @@ func BookingTimestamp(t *BookingTiming) (string, string) {
 
 func GetAvailableBookingSpace(floorId int, fromDate, toDate string) (availableWorkSpaceDetails AvailableWorkspaces, err error) {
 	floor := GetFloorByID(floorId)
-
+	currentDate := time.Now()
 	bookedWorkSpacesRecord := make([]*BookedWorkSpace, 0)
 
-	rows, err := migration.DbPool.Query(context.Background(), "SELECT from_datetime as date, array_agg(workspace_id) as seats from booking_workspaces where (floor_id = $1 and from_datetime between $2 and $3 and to_datetime between $2 and $3) or (floor_id = $1 and from_datetime <= $2 and to_datetime <= $3) group by from_datetime", floorId, fromDate, toDate)
+	rows, err := migration.DbPool.Query(context.Background(), "SELECT from_datetime as date, array_agg(workspace_id) as seats from booking_workspaces where (floor_id = $1 and from_datetime between $2 and $3 and to_datetime between $2 and $3) or (floor_id = $1  and from_datetime <= $3 and to_datetime >= $3 and from_datetime >= $4) group by from_datetime", floorId, fromDate, toDate, currentDate)
 
 	defer rows.Close()
 
